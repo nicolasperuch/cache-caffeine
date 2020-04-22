@@ -1,12 +1,10 @@
 package com.github.nicolasperuch.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
@@ -14,12 +12,8 @@ public class UUIDService {
 
 	private final Cache cache;
 
-	public UUIDService() {
-		this.cache = Caffeine.newBuilder()
-				.expireAfterWrite(1, TimeUnit.MINUTES)
-				.expireAfterAccess(1, TimeUnit.MINUTES)
-				.maximumSize(1000)
-				.build();
+	public UUIDService(Cache cache) {
+		this.cache = cache;
 	}
 
 	public Mono<String> generateUUID(String key) {
@@ -35,7 +29,7 @@ public class UUIDService {
 		return value.concat(UUID.randomUUID().toString());
 	}
 
-	private String cacheIt (String key, String value) {
+	private String cacheIt(String key, String value) {
 		cache.put(key, value);
 		return value;
 	}
